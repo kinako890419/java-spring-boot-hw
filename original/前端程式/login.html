@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人待辦事項_登入</title>
+    <script src="./bootstrap-5.1.1-dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+        }
+
+        .inputItem {
+            width: 90%;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        #formContainer {
+            width: 30%;
+            margin: auto;
+        }
+
+        #btnToCreateAcct {
+            border-radius: 5px;
+            border: 0cap;
+            color: #0d6efd;
+            background-color: transparent;
+        }
+
+        #btnLogin {
+            border-radius: 3px;
+            border-color: #0d6efd;
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        #btnLogin,
+        #btnToCreateAcct {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #btnSet {
+            float: right;
+            margin-top: 10px;
+        }
+
+        fieldset {
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        legend {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            // 共用API方法，請勿更動
+            var callApi = function callApi(url, param) {
+                return fetch(url, {
+                    method: 'post',
+                    body: JSON.stringify(param),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(function (response) {
+                    return response.json();
+                });
+            }
+
+            var btnToCreateAcct = document.getElementById('btnToCreateAcct');
+            var btnLogin = document.getElementById('btnLogin');
+
+            btnToCreateAcct.addEventListener('click', function () {
+                window.location.href = 'createAccount.html';
+            });
+
+            btnLogin.addEventListener('click', function () {
+                const param = {
+                    Account: document.getElementById('account').value,
+                    Password: document.getElementById('password').value
+                };
+                login(param);
+            });
+
+            var login = function (param) {
+                callApi('http://localhost:8080/csp/login', param).then(function (response) {
+                    if (response.returnCode !== '0000') {
+                        alert('登入失敗');
+                        return;
+                    }
+
+                    localStorage.setItem('userName', response.user);
+                    window.location.href = 'todoList.html';
+                }).catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+
+        }
+    </script>
+</head>
+
+<body>
+    <div id="formContainer">
+        <fieldset>
+            <legend style="font-size: 30px;">登入</legend>
+            <input type="text" class="inputItem" id="account" name="account" placeholder="輸人你的帳號">
+            <input type="text" class="inputItem" id="password" name="password" placeholder="輸人你的密碼">
+            <div id="btnSet">
+                <button type="button" id="btnToCreateAcct">建立帳戶</button>
+                <button type="button" id="btnLogin">登入</button>
+            </div>
+        </fieldset>
+    </div>
+</body>
+
+</html>

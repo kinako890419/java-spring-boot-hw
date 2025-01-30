@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人待辦事項_建立帳戶</title>
+    <link th:href="@{/css/account.css}" rel="stylesheet" type="text/css">
+    <script th:src="@{/js/account.js}"></script>
+</head>
+
+<body>
+
+    <form id="formContainer">
+        <fieldset>
+            <legend style="font-size: 30px;">建立帳戶</legend>
+            <input class="inputItem" id="account" name="account" type="text" placeholder="輸入你的帳號（8 個英數字母）">
+            <input class="inputItem" id="password" name="password" type="password" placeholder="輸入你的密碼（8 個英數字母）">
+            <div id="btnSet">
+                <button id="btnToLogin" type="button" class="btn-base">返回登入頁</button>
+                <button id="btnCreateAcct" type="button" class="btn-base btn-primary">建立帳戶</button>
+                <!-- <button id="btnDemo" type="button" class="btn-base">功能測試</button> -->
+            </div>
+        </fieldset>
+    </form>
+</body>
+
+</html>

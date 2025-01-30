@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人待辦事項</title>
+    <link th:href="@{/bootstrap-5.1.1-dist/css/bootstrap.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/css/todoList.css}" rel="stylesheet" type="text/css">
+    <script th:src="@{/bootstrap-5.1.1-dist/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/todoList.js}"></script>
+</head>
+
+<body>
+
+    <h1>待辦事項</h1>
+    <!-- 登出按鈕 -->
+    <div id="logoutButton">
+        <button class="btn btn-danger">登出</button>
+    </div>
+
+    <hr>
+
+    <h3 id="userName"></h3>
+    <div id="todoListArea">
+        <!-- 改為動態生成 -->
+    </div>
+
+    <br>
+    <div id="createArea">
+        <input id="tskConInput" style="width: 50%;" type="text">
+        <button id="btnCreateTodolist" class="btn btn-primary" type="button">新增</button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="cuModal" tabindex="-1" aria-labelledby="cuModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cuModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalTskId">...</p>
+                    <textarea style="width: 100%;" name="modalTskContent" id="modalTskContent"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" id="btnCu" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

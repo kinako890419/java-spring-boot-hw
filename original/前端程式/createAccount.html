@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人待辦事項_建立帳戶</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+        }
+
+        .inputItem {
+            width: 90%;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        #formContainer {
+            width: 30%;
+            margin: auto;
+        }
+
+        #btnToLogin {
+            border-radius: 5px;
+            border: 0cap;
+            color: #0d6efd;
+            background-color: transparent;
+        }
+
+        #btnCreateAcct {
+            border-radius: 5px;
+            border-color: #0d6efd;
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        #btnDemo {
+            border-radius: 5px;
+            border-color: #b1b4b9;
+            background-color: #b1b4b9;
+            color: white;
+        }
+
+        #btnToLogin,
+        #btnCreateAcct,
+        #btnDemo {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #btnSet {
+            float: right;
+            margin-top: 10px;
+        }
+
+        fieldset {
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        legend {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            // 共用API方法，請勿更動
+            var callApi = function callApi(url, param) {
+                return fetch(url, {
+                    method: 'post',
+                    body: JSON.stringify(param),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(function (response) {
+                    return response.json();
+                });
+            }
+
+            /*↓↓↓ 範例程式 ↓↓↓*/
+            document.getElementById('btnDemo').addEventListener('click', function () {
+                // 請把要送至後端查詢的資訊，包裝成物件
+                var param = {
+                    id: '00512345',
+                    num: 4,
+                    keyword: 'ABCDE'
+                };
+                /* 呼叫callApi方法需傳入2個參數(1.後端API的URL, 2.包裝成物件的param)*/
+                callApi('http://localhost:8080/csp/demoCode', param).then(function (response) {
+                    /* API回傳的內容為後端組出的Map，例：
+                    {"pokerA":[],"success":true,"returnMessage":"驗證成功","metro_fee":100}
+                	
+                    可透過response.[key]取值，例：response.returnMessage = '驗證成功'
+                    */
+                    console.log('returnMessage--->' + response.returnMessage);
+                    console.log('metro_fee--->' + response.metro_fee);
+                });
+            });
+            /*↑↑↑ 範例程式 ↑↑↑*/
+
+            var btnToLogin = document.getElementById('btnToLogin');
+            var btnCreateAcct = document.getElementById('btnCreateAcct');
+
+            btnToLogin.addEventListener('click', function () {
+                window.location.href = 'login.html';
+            });
+
+            btnCreateAcct.addEventListener('click', function () {
+                const param = {
+                    Account: document.getElementById('account').value,
+                    Password: document.getElementById('password').value
+                };
+                createAccount(param);
+            });
+
+            var createAccount = function (param) {
+                callApi('http://localhost:8080/csp/createAccount', param).then(function (response) {
+                    if (response.returnCode === "0001") {
+                        alert('帳號或密碼不符合8個英數字母的條件');
+                        return;
+                    }
+                    if (response.returnCode === "0002") {
+                        alert('帳號重複');
+                        return;
+                    }
+                    if (response.returnCode === "9999") {
+                        alert('建立失敗');
+                        return;
+                    }
+                    window.location.href = 'login.html';
+                }).catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <form id="formContainer">
+        <fieldset>
+            <legend>建立帳戶</legend>
+            <input class="inputItem" id="account" name="account" type="text" placeholder="輸人你的帳號（8 個英數字母）"> <br>
+            <input class="inputItem" id="password" name="password" type="text" placeholder="輸人你的密碼（8 個英數字母）"> <br>
+            <div id="btnSet">
+                <button id="btnToLogin" type="button">返回登入頁</button>
+                <button id="btnCreateAcct" type="button">建立帳戶</button>
+                <button id="btnDemo" type="button">功能測試</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+# MySQL Database connection configuration
+spring.datasource.url={DATABASE_URL}
+spring.datasource.username={DATABASE_USERNAME}
+spring.datasource.password={DATABASE_PASSWORD}
+
+debug=true
+logging.level.root=INFO
+logging.level.com.cathaybk.csp=DEBUG
+logging.file.name=logs/app.log
+
+#spring.mvc.view.prefix=/templates/
+#spring.mvc.view.suffix=.html
+
+# Thyme Leaf configurations
+spring.thymeleaf.prefix=classpath:/templates/
+spring.thymeleaf.suffix=.html
+spring.thymeleaf.mode=HTML5
+spring.thymeleaf.encoding=UTF-8
+spring.thymeleaf.cache=false

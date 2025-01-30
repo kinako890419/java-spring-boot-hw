@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人待辦事項</title>
+    <link rel="stylesheet" href="./bootstrap-5.1.1-dist/css/bootstrap.css" type="text/css">
+    <script src="./bootstrap-5.1.1-dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        #todoListArea {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        h1,
+        #userName {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: inherit;
+        }
+
+        #createArea {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: inherit;
+        }
+
+        #todoListArea {
+            align-content: center;
+        }
+
+        .funcs {
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            border-color: transparent;
+        }
+
+        .todoItem {
+            width: 60%;
+        }
+
+        #btnCreateTodolist {
+            margin-left: 30px;
+        }
+
+        fieldset {
+            width: inherit;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center
+        }
+
+        legend {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            // 共用API方法，請勿更動
+            var callApi = function callApi(url, param) {
+                return fetch(url, {
+                    method: 'post',
+                    body: JSON.stringify(param),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(function (response) {
+                    return response.json();
+                });
+            }
+            var accountLogin = localStorage.getItem('userName');
+
+            userName.innerText = `Hi, ${accountLogin}`;
+
+            var createTodoItem = function (todoItem) {
+                let todoItemElement = document.createElement('div');
+                todoItemElement.classList.add('todoItem');
+
+                let table = document.createElement('table');
+                table.classList.add('table');
+
+                let thead = document.createElement('thead');
+                let tr = document.createElement('tr');
+                let taskId = document.createElement('th');
+                taskId.textContent = `[${todoItem.taskId}]`;
+                let taskStatus = document.createElement('th');
+                taskStatus.textContent = todoItem.taskStatus;
+                let updateTime = document.createElement('th');
+                updateTime.textContent = todoItem.updateTime;
+                let replyCount = document.createElement('th');
+                replyCount.textContent = `共計 ${todoItem.replyCount} 則筆記`;
+
+                let dropdownTh = document.createElement('th');
+                let dropdown = document.createElement('div');
+                dropdown.classList.add('dropdown');
+
+                let btnDropdown = document.createElement('button');
+                btnDropdown.classList.add('btn', 'btn-secondary', 'dropdown-toggle');
+                btnDropdown.setAttribute('type', 'button');
+                btnDropdown.setAttribute('id', `${todoItem.taskId}dropdownMenuButton`);
+                btnDropdown.setAttribute('data-bs-toggle', 'dropdown');
+                btnDropdown.setAttribute('aria-expanded', 'false');
+                btnDropdown.innerText = '...';
+
+                let dropdownMenu = document.createElement('ul');
+                dropdownMenu.classList.add('dropdown-menu');
+                dropdownMenu.setAttribute('aria-labelledby', `${todoItem.taskId}dropdownMenuButton`);
+
+                let editLi = createDropItem('修改內容', todoItem, true);
+                editLi.addEventListener('click', () => {
+                    setModalContent('修改任務內容', `任務序號：${todoItem.taskId}`, todoItem.taskContent, '修改');
+                    btnCu.onclick = function () {
+                        if (!modalTskContent.value) {
+                            alert('請輸入內容');
+                            return;
+                        }
+
+                        const param = {
+                            TaskId: todoItem.taskId,
+                            TaskContent: modalTskContent.value
+                        }
+                        EditTodoItem(param);
+                    }
+                });
+
+                let addLi = createDropItem('新增筆記', todoItem, true);
+                addLi.addEventListener('click', () => {
+                    setModalContent('新增筆記', `任務序號：${todoItem.taskId}`, '', '新增');
+                    btnCu.onclick = function () {
+
+                        if (!modalTskContent.value) {
+                            alert('請輸入內容');
+                            return;
+                        }
+
+                        const param = {
+                            TaskId: todoItem.taskId,
+                            TaskContent: modalTskContent.value
+                        }
+                        AddReply(param);
+                    }
+                });
+
+                let todoListArea = document.getElementById('todoListArea');
+
+                todoListArea.appendChild(todoItemElement);
+                todoItemElement.appendChild(table);
+                table.appendChild(thead);
+                thead.appendChild(tr);
+                tr.appendChild(taskId);
+                tr.appendChild(taskStatus);
+                tr.appendChild(updateTime);
+                tr.appendChild(replyCount);
+                tr.appendChild(dropdownTh);
+                dropdownTh.appendChild(dropdown);
+                dropdown.appendChild(btnDropdown);
+                dropdown.append(dropdownMenu);
+                dropdownMenu.appendChild(editLi);
+                dropdownMenu.appendChild(addLi);
+
+                let statusLi = createDropItem(todoItem.taskStatus === 'Done' ? '重新開啟' : '完成任務', todoItem, false);
+                let newTaskStatus = todoItem.taskStatus === 'Done' ? 'Todo' : 'Done';
+                dropdownMenu.appendChild(statusLi);
+                statusLi.addEventListener('click', () => {
+                    const param = {
+                        TaskId: todoItem.taskId,
+                        TaskStatus: newTaskStatus
+                    }
+                    EditTodoItemStatus(param);
+                });
+
+                let tbody = document.createElement('tbody');
+
+                let trTxtContent = document.createElement('tr');
+                let tdTxtContent = document.createElement('td');
+                tdTxtContent.colSpan = '5';
+                tdTxtContent.innerText = todoItem.taskContent;
+                tbody.appendChild(trTxtContent);
+                trTxtContent.appendChild(tdTxtContent);
+
+                todoItem.reply.forEach(element => {
+                    let tr = document.createElement('tr');
+                    let td = document.createElement('td');
+                    td.colSpan = '5';
+                    td.innerText = element.content;
+                    tbody.appendChild(tr);
+                    tr.appendChild(td);
+                });
+
+                table.appendChild(tbody);
+            }
+
+            var createDropItem = function (btnText, todoItem, needModal) {
+                let item = document.createElement('li');
+                let btnReopen = document.createElement('button');
+                btnReopen.classList.add('dropdown-item');
+
+                if (needModal) {
+                    btnReopen.setAttribute('data-bs-toggle', 'modal');
+                    btnReopen.setAttribute('data-bs-target', '#cuModal');
+                }
+
+                btnReopen.setAttribute('type', 'button')
+                btnReopen.textContent = btnText;
+                item.appendChild(btnReopen);
+                return item;
+            }
+
+            function setModalContent(modalLabelText, taskIdLabel, taskContent = "", buttonText) {
+                cuModalLabel.innerText = modalLabelText;
+                modalTskId.innerText = taskIdLabel;
+                modalTskContent.value = taskContent;
+                btnCu.innerText = buttonText;
+            }
+
+            var addTodoItem = function (param) {
+                callApi('http://localhost:8080/csp/addTodoItem', param).then(function (response) {
+                    if (response.returnCode !== '0000') {
+                        alert('新增失敗');
+                        return;
+                    }
+
+                    todoListArea.innerText = '';
+                    tskConInput.value = '';
+                    queryAll();
+                }).catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+
+            var queryAll = function () {
+                const param = {
+                    Account: accountLogin
+                };
+                callApi('http://localhost:8080/csp/queryAll', param).then(function (response) {
+                    if (response.returnCode !== '0000') {
+                        alert('查詢失敗');
+                        return;
+                    }
+
+                    response.task.forEach(element => {
+                        createTodoItem(element);
+                    });
+                }).catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+
+            var editTodoItem = function (param) {
+                callApi('http://localhost:8080/csp/editTodoItem', param).then(function (response) {
+                    if (response.returnCode !== '0000') {
+                        alert('修改失敗');
+                        return;
+                    }
+
+                    closeModal();
+                    todoListArea.innerText = '';
+                    queryAll();
+                }).catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+
+            var addReply = function (param) {
+                callApi('http://localhost:8080/csp/addReply', param).then(function (response) {
+                    if (response.returnCode !== '0000') {
+                        alert('新增失敗');
+                        return;
+                    }
+
+                    closeModal();
+                    todoListArea.innerText = '';
+                    queryAll();
+                }).catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+
+            var editTodoItemStatus = function (param) {
+                callApi('http://localhost:8080/csp/editTodoItemStatus', param).then(function (response) {
+                    if (response.returnCode !== '0000') {
+                        alert('修改失敗');
+                        return;
+                    }
+
+                    todoListArea.innerText = '';
+                    queryAll();
+                }).catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+
+            document.getElementById('btnCreateTodolist').addEventListener('click', () => {
+
+                if (!tskConInput.value) {
+                    alert('請輸入內容');
+                    return;
+                }
+
+                const param = {
+                    user: accountLogin,
+                    taskContent: tskConInput.value
+                };
+                addTodoItem(param);
+            });
+
+            var closeModal = function () {
+                var cuModal = bootstrap.Modal.getInstance(document.getElementById('cuModal'));
+                cuModal.hide();
+            }
+
+            queryAll();
+        }
+    </script>
+</head>
+
+<body>
+
+    <h1>待辦事項</h1>
+    <hr>
+
+    <p id="userName"></p>
+    <div id="todoListArea">
+        <div class="todoItem">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>[00000]</th>
+                        <th>Done</th>
+                        <th>2024/9/8/ 13:13</th>
+                        <th>共計 3 則筆記</th>
+                        <th>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    ...
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                    <li><button type="button" class="dropdown-item" href="#">修改內容</button></li>
+                                    <li><button type="button" class="dropdown-item" href="#">新增筆記</button></li>
+                                    <li><button type="button" class="dropdown-item" href="#">完成任務</button></li>
+                                    <li><button type="button" class="dropdown-item" href="#">重新開啟</button></li>
+                                </ul>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5">taskContent XXXXXXXXXXXXXXXXXXXXXXXX</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">[replyId] Content</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">[replyId] Content</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <br>
+    <div id="createArea">
+        <input id="tskConInput" style="width: 50%;" type="text">
+        <button id="btnCreateTodolist" class="btn btn-primary" type="button">新增</button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="cuModal" tabindex="-1" aria-labelledby="cuModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cuModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalTskId">...</p>
+                    <textarea style="width: 100%;" name="modalTskContent" id="modalTskContent"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    <button type="button" id="btnCu" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
