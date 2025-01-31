@@ -99,7 +99,8 @@ public class TaskService {
                 for (Reply reply : replies) {
                     Map<String, Object> replyMap = new HashMap<>();
                     replyMap.put("replyId", reply.getReplyId());
-                    replyMap.put("replyContent", "[" + reply.getReplyId() + "] " + reply.getReplyContent() + ", " + new SimpleDateFormat("yyyy/MM/dd HH:mm").format(reply.getCreateTime()));
+                    replyMap.put("replyContent", reply.getReplyContent());
+                    replyMap.put("updateTime", new SimpleDateFormat("yyyy/MM/dd HH:mm").format(reply.getCreateTime()));
                     replyList.add(replyMap);
                 }
 

@@ -46,6 +46,10 @@ window.onload = function () {
         let replyCount = document.createElement('th');
         replyCount.textContent = `共計 ${todoItem.replyCount} 則筆記`;
 
+        let taskIdAndReplyCount = document.createElement('th');
+        taskIdAndReplyCount.innerHTML = `[${displayId.toString().padStart(4, '0')}] <span style="margin-left: 10px;">共計 ${todoItem.replyCount} 則筆記</span>`;
+
+
         let dropdownTh = document.createElement('th');
         let dropdown = document.createElement('div');
         dropdown.classList.add('dropdown');
@@ -123,10 +127,11 @@ window.onload = function () {
         todoItemElement.appendChild(table);
         table.appendChild(thead);
         thead.appendChild(tr);
-        tr.appendChild(taskId);
+        // tr.appendChild(taskId);
+        // tr.appendChild(replyCount);
+        tr.appendChild(taskIdAndReplyCount);
         tr.appendChild(taskStatus);
         tr.appendChild(updateTime);
-        tr.appendChild(replyCount);
         tr.appendChild(dropdownTh);
         dropdownTh.appendChild(dropdown);
         dropdown.appendChild(btnDropdown);
@@ -157,13 +162,38 @@ window.onload = function () {
 
         trTxtContent.appendChild(tdTxtContent);
         tbody.appendChild(trTxtContent);
+
+        // 修改 Reply 呈現方式
         todoItem.reply.forEach(element => {
             let tr = document.createElement('tr');
-            let td = document.createElement('td');
-            td.colSpan = '5';
-            td.innerText = element.replyContent;
+            tr.style.backgroundColor = '#f8f9fa';
+            
+            // col 1: Reply內容（粗體）
+            let tdContent = document.createElement('td');
+            tdContent.style.width = '45%';
+            tdContent.innerHTML = `<b>${element.replyContent}</b>`;
+
+            // col 2: 空白欄位
+            let tdEmpty = document.createElement('td');
+            
+            // col 3: 時間（斜體）
+            let tdTime = document.createElement('td');
+            tdTime.innerHTML = `<i>${element.updateTime}</i>`;
+            tdTime.style.color = '#666';
+            
+            // col 4: 刪除按鈕
+            let tdAction = document.createElement('td');
+            let deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-sm btn-outline-danger';
+            deleteBtn.innerText = '刪除';
+            deleteBtn.disabled = true;
+            tdAction.appendChild(deleteBtn);
+            
+            tr.appendChild(tdContent);
+            tr.appendChild(tdEmpty);
+            tr.appendChild(tdTime);
+            tr.appendChild(tdAction);
             tbody.appendChild(tr);
-            tr.appendChild(td);
         });
 
         table.appendChild(tbody);
@@ -196,6 +226,12 @@ window.onload = function () {
         modalTskId.innerText = taskIdLabel;
         modalTskContent.value = taskContent;
         btnCu.innerText = buttonText;
+
+        // Add length validation message
+        let validationMsg = document.createElement('small');
+        validationMsg.className = 'text-muted';
+        validationMsg.innerHTML = `（最多${MAX_INPUT_LENGTH}字）`;
+        modalTskId.appendChild(validationMsg);
     }
 
     var addTodoItem = function (param) {
@@ -282,10 +318,20 @@ window.onload = function () {
         });
     }
 
+    const MAX_INPUT_LENGTH = 150;
+
+    // Add maxlength attribute to input element when page loads
+    document.getElementById('tskConInput').setAttribute('maxlength', MAX_INPUT_LENGTH);
+    document.getElementById('modalTskContent').setAttribute('maxlength', MAX_INPUT_LENGTH);
+
     document.getElementById('btnCreateTodolist').addEventListener('click', () => {
 
         if (!tskConInput.value) {
             alert('請輸入內容');
+            return;
+        }
+        if (tskConInput.value.length > MAX_INPUT_LENGTH) {
+            alert(`內容長度不得超過${MAX_INPUT_LENGTH}字`);
             return;
         }
 
