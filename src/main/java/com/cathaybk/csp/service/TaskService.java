@@ -206,4 +206,45 @@ public class TaskService {
         }
         return response;
     }
+
+    /**
+     * 新增功能：[待辦事項][刪除待辦事項]功能
+     * @param map
+     * @return
+     */
+    public Map<String, Object> deleteTask(Map<String, String> map) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String taskIdStr = map.get("taskId");
+
+            Integer taskId;
+            try {
+                taskId = Integer.parseInt(taskIdStr);
+            } catch (NumberFormatException e) {
+                response.put("returnCode", "9999");
+                logger.warn("[Tasks][Delete Task] Wrong format of task id", e);
+                return response;
+            }
+
+            Task task = taskRepository.findByTaskId(taskId).orElse(null);
+            if (task == null) {
+                response.put("returnCode", "9999");
+                logger.warn("[Tasks][Delete Task] Task id does not exist.");
+                return response;
+            }
+
+            // 刪除 Task
+            // 先刪除所有關聯的 Reply
+            replyRepository.deleteAllReplyByTaskId(taskId);
+            // 再刪除 Task
+            taskRepository.deleteTask(taskId);
+
+            response.put("returnCode", "0000");
+            logger.info("[Tasks][Delete Task] Task and associated replies deleted successfully.");
+        } catch (Exception e) {
+            logger.error("[Tasks][Delete Task] Error occurred.", e);
+            response.put("returnCode", "9999");
+        }
+        return response;
+    }
 }

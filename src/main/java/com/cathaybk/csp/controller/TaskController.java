@@ -73,4 +73,15 @@ public class TaskController {
     public ResponseEntity<Map<String, Object>> editTodoItemStatus(@RequestBody Map<String, String> map) {
         return new ResponseEntity<>(taskService.editTodoItemStatus(map), HttpStatus.OK);
     }
+
+    /**
+     * Deletes an existing todo item.
+     *
+     * @param map a map containing the ID of the todo item to be deleted
+     * @return a ResponseEntity containing the result of the delete operation
+     */
+    @PostMapping(value = "/deleteTask")
+    public ResponseEntity<Map<String, Object>> deleteTask(@RequestBody Map<String, String> map) {
+        return new ResponseEntity<>(taskService.deleteTask(map), HttpStatus.OK);
+}
 }

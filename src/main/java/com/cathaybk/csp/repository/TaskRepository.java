@@ -72,6 +72,18 @@ public class TaskRepository {
         List<Task> tasks = jdbcTemplate.query(sql, new TaskRowMapper(), taskId);
         return tasks.isEmpty() ? Optional.empty() : Optional.of(tasks.get(0));
     }
+    
+    /**
+     * Deletes a task by its ID.
+     *
+     * @param taskId the ID of the task to be deleted
+     */
+    public void deleteTask(Integer taskId) {
+        String sql = "DELETE FROM Task WHERE task_id = ?";
+        jdbcTemplate.update(sql, taskId);
+    }
+
+    
 
     /**
      * RowMapper implementation for mapping rows of a ResultSet to Task objects.

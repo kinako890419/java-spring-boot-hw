@@ -29,4 +29,15 @@ public class ReplyController {
     public ResponseEntity<Map<String, Object>> addReply(@RequestBody Map<String, String> map) {
         return new ResponseEntity<>(replyService.addReply(map), HttpStatus.OK);
     }
+
+    /**
+     * Deletes a reply.
+     *
+     * @param map a map containing the ID of the reply to be deleted
+     * @return a ResponseEntity containing the result of the delete operation
+     */
+    @PostMapping(value = "/deleteReply")
+    public ResponseEntity<Map<String, Object>> deleteReply(@RequestBody Map<String, String> map) {
+        return new ResponseEntity<>(replyService.deleteReply(map), HttpStatus.OK);
+    }
 }

@@ -93,4 +93,55 @@ public class ReplyService {
 
         return replyList;
     }
+
+    /**
+     * 新增功能：[待辦事項][刪除筆記]
+     * @param map
+     * @return
+     */
+    public Map<String, Object> deleteReply(Map<String, String> map) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            
+            String replyIdStr = map.get("replyId");
+            Integer replyId;
+
+            try {
+                replyId = Integer.parseInt(replyIdStr);
+            } catch (NumberFormatException e) {
+                response.put("returnCode", "9999");
+                logger.warn("[Tasks][Delete Reply] Wrong format of reply id", e);
+                return response;
+            }
+    
+            Reply reply = replyRepository.findByReplyId(replyId).orElse(null);
+            if (reply == null) {
+                response.put("returnCode", "9999");
+                logger.warn("[Tasks][Delete Reply] Reply id does not exist.");
+                return response;
+            }
+    
+            // Find associated Task
+            Task task = taskRepository.findByTaskId(reply.getTaskId()).orElse(null);
+            if (task == null) {
+                response.put("returnCode", "9999");
+                logger.warn("[Tasks][Delete Reply] Associated task does not exist.");
+                return response;
+            }
+    
+            // Delete Reply
+            replyRepository.deleteReply(replyId);
+    
+            // 刪除筆記後，更新待辦事項的更新時間
+            task.setUpdateTime(new Date());
+            taskRepository.updateTaskContent(task);
+    
+            response.put("returnCode", "0000");
+            logger.info("[Tasks][Delete Reply] Reply deleted and task updated successfully.");
+        } catch (Exception e) {
+            logger.error("[Tasks][Delete Reply] Error occurred.", e);
+            response.put("returnCode", "9999");
+        }
+        return response;
+    }
 }

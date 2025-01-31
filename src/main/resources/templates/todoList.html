@@ -51,6 +51,47 @@
             </div>
         </div>
     </div>
+
+    <!-- 確認刪除 Task 的 Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">確認刪除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>確定要刪除此待辦事項及其下方的所有筆記嗎？此動作無法復原。</p>
+                    <p id="deleteTaskId" style="display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" id="btnDelete" class="btn btn-danger">確認刪除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認刪除 Reply 的 Modal -->
+    <div class="modal fade" id="deleteReplyModal" tabindex="-1" aria-labelledby="deleteReplyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteReplyModalLabel">確認刪除筆記</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>確定要刪除此筆記嗎？此動作無法復原。</p>
+                    <p id="deleteReplyId" style="display: none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" id="btnDeleteReply" class="btn btn-danger">確認刪除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

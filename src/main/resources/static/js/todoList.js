@@ -121,6 +121,15 @@ window.onload = function () {
             });
         }
 
+        let deleteLi = createDropItem('刪除事項', todoItem, false);
+        deleteLi.addEventListener('click', () => {
+            // Show delete confirmation modal
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            document.getElementById('deleteTaskId').textContent = todoItem.taskId;
+            deleteModal.show();
+        });
+        dropdownMenu.appendChild(deleteLi);
+
         let todoListArea = document.getElementById('todoListArea');
 
         todoListArea.appendChild(todoItemElement);
@@ -186,7 +195,16 @@ window.onload = function () {
             let deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-sm btn-outline-danger';
             deleteBtn.innerText = '刪除';
-            deleteBtn.disabled = true;
+            if (todoItem.taskStatus === 'Done') {
+                deleteBtn.disabled = true; // 如果Task完成則不能刪除Reply
+                deleteBtn.style.display = 'none'; // 隱藏按鈕
+            } else {
+                deleteBtn.addEventListener('click', () => {
+                    const deleteReplyModal = new bootstrap.Modal(document.getElementById('deleteReplyModal'));
+                    document.getElementById('deleteReplyId').textContent = element.replyId;
+                    deleteReplyModal.show();
+                });
+            }
             tdAction.appendChild(deleteBtn);
             
             tr.appendChild(tdContent);
@@ -342,9 +360,62 @@ window.onload = function () {
         addTodoItem(param);
     });
 
+    var deleteTask = function (param) {
+        callApi('http://localhost:8080/csp/deleteTask', param).then(function (response) {
+            if (response.returnCode !== '0000') {
+                alert('刪除失敗');
+                return;
+            }
+    
+            closeModal();
+            todoListArea.innerText = '';
+            queryAll();
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    document.getElementById('btnDelete').addEventListener('click', function () {
+        const taskId = document.getElementById('deleteTaskId').textContent;
+        const param = {
+            taskId: taskId
+        };
+        deleteTask(param);
+        const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+        deleteModal.hide();
+    });
+
+    // 刪除Reply
+    var deleteReply = function (param) {
+        callApi('http://localhost:8080/csp/deleteReply', param).then(function (response) {
+            if (response.returnCode !== '0000') {
+                alert('刪除失敗');
+                return;
+            }
+
+            closeModal();
+            todoListArea.innerText = '';
+            queryAll();
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    document.getElementById('btnDeleteReply').addEventListener('click', function () {
+        const replyId = document.getElementById('deleteReplyId').textContent;
+        const param = {
+            replyId: replyId
+        };
+        deleteReply(param);
+        const deleteReplyModal = bootstrap.Modal.getInstance(document.getElementById('deleteReplyModal'));
+        deleteReplyModal.hide();
+    });
+
     var closeModal = function () {
         var cuModal = bootstrap.Modal.getInstance(document.getElementById('cuModal'));
-        cuModal.hide();
+        var deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+        if (cuModal) cuModal.hide();
+        if (deleteModal) deleteModal.hide();
     }
 
     // 用戶登出
